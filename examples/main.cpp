@@ -24,14 +24,22 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <time.h>
 
 #include "munkres.h"
 #include "adapters/boostmatrixadapter.h"
 
+unsigned long GetTickCount()
+{
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return (ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
+}
+
 int
 main(int argc, char *argv[]) {
-	int nrows = 101;
-	int ncols = 101;
+	int nrows = 20;
+	int ncols = 20;
 	
 	if ( argc == 3 ) {
 		nrows = atoi(argv[1]);
@@ -45,7 +53,7 @@ main(int argc, char *argv[]) {
 	// Initialize matrix with random values.
 	for ( int row = 0 ; row < nrows ; row++ ) {
 		for ( int col = 0 ; col < ncols ; col++ ) {
-			matrix(row,col) = (double)random();
+			matrix(row,col) = (float)random();
 		}
 	}
 
@@ -61,7 +69,12 @@ main(int argc, char *argv[]) {
 
 	// Apply Munkres algorithm to matrix.
 	Munkres<double> m;
+	//Time measurment
+	uint64_t e1 = GetTickCount();
 	m.solve(matrix);
+	uint64_t e2 = GetTickCount();
+	double t1 = (e2 - e1);
+	std::cout <<  "\nMunkres time cost:  " << t1<< "milli seconds" << std::endl;
 
 	// Display solved matrix.
 	for ( int row = 0 ; row < nrows ; row++ ) {
