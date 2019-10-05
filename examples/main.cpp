@@ -39,8 +39,8 @@ unsigned long GetTickCount()
 
 int
 main(int argc, char *argv[]) {
-	int nrows = 3;
-	int ncols = 2;
+	int nrows = 8;
+	int ncols = 5;
 	
 	if ( argc == 3 ) {
 		nrows = atoi(argv[1]);
@@ -67,7 +67,7 @@ main(int argc, char *argv[]) {
   weights.at<float>(2, 0) = 0.125f;
   weights.at<float>(2, 1) = 0.33333334f;
 
-#if 0
+#if 1
 	// Initialize matrix with random values.
 	for ( int row = 0 ; row < nrows ; row++ ) {
 		for ( int col = 0 ; col < ncols ; col++ ) {

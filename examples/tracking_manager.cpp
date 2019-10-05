@@ -92,8 +92,6 @@ void TrackingManager::matchTrackDet(cv::Mat& weights, cv::Mat& matches)
           for (int j = 0; j<size_squal; j++) {
             if (*col_visit.ptr<uint8_t>(j) == 1)
               col_weight.ptr<float>(0)[j] += min_gap;
-            else
-              col_gap.ptr<float>(0)[j] -= min_gap;
 
             if (row_visit.ptr<uint8_t>(0)[j] == 1)
               row_weight.ptr<float>(0)[j] -= min_gap;
