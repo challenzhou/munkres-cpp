@@ -40,9 +40,12 @@ install (FILES ${MunkresCppLib_HEADERS} DESTINATION include/munkres PERMISSIONS 
 
 
 # Binary example
-set (MunkresCppBin_SOURCES ${PROJECT_SOURCE_DIR}/examples/main.cpp)
+find_package(OpenCV REQUIRED)
+include_directories(${OPENCV_INCLUDE_DIR})
+
+set (MunkresCppBin_SOURCES ${PROJECT_SOURCE_DIR}/examples/main.cpp  ${PROJECT_SOURCE_DIR}/examples/tracking_manager.cpp)
 add_executable (munkres.bin EXCLUDE_FROM_ALL ${MunkresCppBin_SOURCES})
-target_link_libraries (munkres.bin munkres)
+target_link_libraries (munkres.bin munkres ${OpenCV_LIBRARIES})
 add_custom_target (example)
 add_dependencies  (example munkres.bin)
 

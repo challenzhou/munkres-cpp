@@ -1,3 +1,5 @@
 src/munkrestest
+build
 *.so
 *.o
+*.swp

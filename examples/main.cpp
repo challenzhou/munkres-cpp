@@ -27,6 +27,7 @@
 #include <time.h>
 
 #include "munkres.h"
+#include "tracking_manager.hpp"
 #include "adapters/boostmatrixadapter.h"
 
 unsigned long GetTickCount()
@@ -38,25 +39,40 @@ unsigned long GetTickCount()
 
 int
 main(int argc, char *argv[]) {
-	int nrows = 20;
-	int ncols = 20;
+	int nrows = 2;
+	int ncols = 2;
 	
 	if ( argc == 3 ) {
 		nrows = atoi(argv[1]);
 		ncols = atoi(argv[2]);
 	}
 
-	Matrix<double> matrix(nrows, ncols);
+	Matrix<float> matrix(nrows, ncols);
+	cv::Mat weights(nrows, ncols, CV_32F);
+	cv::Mat match_tm = cv::Mat::zeros(1, ncols, CV_32F);
 	
 	srandom(time(nullptr)); // Seed random number generator.
 
+  matrix(0,0) = 10;
+  matrix(0,1) = 2;
+  matrix(1,0) = 6;
+  matrix(1,1) = 2;
+
+  weights.at<float>(0, 0) = 0.1f;
+  weights.at<float>(0, 1) = 0.5f;
+  weights.at<float>(1, 0) = 0.16666667f;
+  weights.at<float>(1, 1) = 0.5f;
+
+#if 0
 	// Initialize matrix with random values.
 	for ( int row = 0 ; row < nrows ; row++ ) {
 		for ( int col = 0 ; col < ncols ; col++ ) {
-			matrix(row,col) = (float)random();
+			float value = (float)(random()%10 + 1);
+			matrix(row,col) = value;
+      weights.at<float>(row, col) = 1.0f/value;
 		}
 	}
-
+#endif
 	// Display begin matrix state.
 	for ( int row = 0 ; row < nrows ; row++ ) {
 		for ( int col = 0 ; col < ncols ; col++ ) {
@@ -67,14 +83,27 @@ main(int argc, char *argv[]) {
 	}
 	std::cout << std::endl;
 
+  
+
+
 	// Apply Munkres algorithm to matrix.
-	Munkres<double> m;
+	Munkres<float> m;
 	//Time measurment
 	uint64_t e1 = GetTickCount();
 	m.solve(matrix);
 	uint64_t e2 = GetTickCount();
 	double t1 = (e2 - e1);
 	std::cout <<  "\nMunkres time cost:  " << t1<< "milli seconds" << std::endl;
+
+  std::cout << "\nTM weights:" << weights << "\n" << std::endl;
+  tracker::TrackingManager tm;
+  e1 = GetTickCount();
+  tm.matchTrackDet(weights, match_tm);
+  e2 = GetTickCount();
+	double t2 = (e2 - e1);
+	std::cout <<  "\nMunkres-TM time cost:  " << t2<< "milli seconds" << std::endl;
+  
+
 
 	// Display solved matrix.
 	for ( int row = 0 ; row < nrows ; row++ ) {
@@ -108,5 +137,7 @@ main(int argc, char *argv[]) {
 			std::cerr << "Column " << col << " has " << colcount << " rows that have been matched." << std::endl;
 	}
 
+
+  std::cout << "\nTM match result:" << match_tm << "\n" << std::endl;
 	return 0;
 }
