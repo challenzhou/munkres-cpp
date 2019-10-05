@@ -39,7 +39,7 @@ unsigned long GetTickCount()
 
 int
 main(int argc, char *argv[]) {
-	int nrows = 2;
+	int nrows = 3;
 	int ncols = 2;
 	
 	if ( argc == 3 ) {
@@ -54,14 +54,18 @@ main(int argc, char *argv[]) {
 	srandom(time(nullptr)); // Seed random number generator.
 
   matrix(0,0) = 10;
-  matrix(0,1) = 2;
+  matrix(0,1) = 4;
   matrix(1,0) = 6;
-  matrix(1,1) = 2;
+  matrix(1,1) = 5;
+  matrix(2,0) = 8;
+  matrix(2,1) = 3;
 
   weights.at<float>(0, 0) = 0.1f;
-  weights.at<float>(0, 1) = 0.5f;
+  weights.at<float>(0, 1) = 0.25f;
   weights.at<float>(1, 0) = 0.16666667f;
-  weights.at<float>(1, 1) = 0.5f;
+  weights.at<float>(1, 1) = 0.2f;
+  weights.at<float>(2, 0) = 0.125f;
+  weights.at<float>(2, 1) = 0.33333334f;
 
 #if 0
 	// Initialize matrix with random values.

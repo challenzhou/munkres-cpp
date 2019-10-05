@@ -54,23 +54,23 @@ void TrackingManager::matchTrackDet(cv::Mat& weights, cv::Mat& matches)
     float row_max = 0.0f, col_max = 0.0f;
 
     for (int j=0;j<size_squal; j++) {
-      float row_value = correlations.at<float>(i, j);
+      float row_value = correlations.ptr<float>(i)[j];
       if (row_max <= row_value)
       {
         row_max = row_value;
         row_maxId = j;
       }
 
-      float col_value = correlations.at<float>(j, i);
+      float col_value = correlations.ptr<float>(j)[i];
       if (col_max <= col_value)
         col_max = col_value;
         col_maxId = j;
     }
 
-   // row_mask.at<uint8_t>(i) = row_maxId;
-    row_weight.at<float>(i) = row_max;
+    // row_mask.at<uint8_t>(i) = row_maxId;
+    row_weight.ptr<float>(0)[i] = row_max;
 
-   // col_mask.at<int32_t>(i) = col_maxId;
+    // col_mask.at<int32_t>(i) = col_maxId;
   }
 
   /*search from tracker to detection*/
@@ -87,16 +87,16 @@ void TrackingManager::matchTrackDet(cv::Mat& weights, cv::Mat& matches)
         if (!ret) {
           int min_idx[2];
           cv::minMaxIdx(col_gap, NULL, NULL, min_idx);
-          float min_gap = col_gap.at<float>(min_idx[0], min_idx[1]);
+          float min_gap = col_gap.ptr<float>(min_idx[0])[min_idx[1]];
 
           for (int j = 0; j<size_squal; j++) {
-            if (col_visit.at<uint8_t>(j) == 1)
-              col_weight.at<float>(j) += min_gap;
+            if (*col_visit.ptr<uint8_t>(j) == 1)
+              col_weight.ptr<float>(0)[j] += min_gap;
             else
-              col_gap.at<float>(j) -= min_gap;
+              col_gap.ptr<float>(0)[j] -= min_gap;
 
-            if (row_visit.at<uint8_t>(j) == 1)
-              row_weight.at<float>(j) -= min_gap;
+            if (row_visit.ptr<uint8_t>(0)[j] == 1)
+              row_weight.ptr<float>(0)[j] -= min_gap;
           }
 
        } else {
@@ -126,26 +126,26 @@ bool TrackingManager::searchMatch(
 {
   int tgt_size = tgtCorr.cols;
 
-  srcVisit.at<uint8_t>(srcId) = 1;
+  srcVisit.ptr<uint8_t>(0)[srcId] = 1;
 
-  float srcCorrValue = srcCorr.at<float>(srcId);
+  float srcCorrValue = srcCorr.ptr<float>(0)[srcId];
   for (int i=0; i<tgt_size; i++)
   {
-    if (tgtVisit.at<uint8_t>(i) == 1)
+    if (tgtVisit.ptr<uint8_t>(0)[i] == 1)
       continue;
 
-    float gap = srcCorrValue + tgtCorr.at<float>(i) - correlations.at<float>(srcId,i);
+    float gap = srcCorrValue + tgtCorr.ptr<float>(0)[i] - correlations.ptr<float>(srcId)[i];
     if (abs(gap <= 1e-04)) gap = 0.0f;
 
     if (gap == 0.0f)
     {
-      tgtVisit.at<uint8_t>(i) = 1;
-      int tgtSrcIdx = tgtMatch.at<int32_t>(i);
+      tgtVisit.ptr<uint8_t>(0)[i] = 1;
+      int tgtSrcIdx = tgtMatch.ptr<int32_t>(0)[i];
       if ((tgtSrcIdx == -1) || 
            searchMatch(tgtSrcIdx, srcVisit, srcCorr, tgtVisit, tgtCorr,
                        tgtMatch, weightDelta, correlations) )
       {
-        tgtMatch.at<int32_t>(i) = srcId;
+        tgtMatch.ptr<int32_t>(0)[i] = srcId;
         //srcMatch.at<int32_t>(srcId) = i;
 
         return true;
@@ -153,7 +153,7 @@ bool TrackingManager::searchMatch(
       }
 
     } else {
-        weightDelta.at<float>(i) = std::min(gap, weightDelta.at<float>(i));
+        weightDelta.ptr<float>(0)[i] = std::min(gap, weightDelta.ptr<float>(0)[i]);
     }
 
   }
